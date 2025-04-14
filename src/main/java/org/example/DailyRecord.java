@@ -17,9 +17,14 @@ public record DailyRecord(
                 today;
     }
 
-//    public static DailyRecord fromCsv(String data) {
-//        // TODO
-//    }
 
-
+    public static DailyRecord fromCsv(String recordLine) {
+        String[] parts = recordLine.split(";");
+        boolean kinderGardenVisit = "1".equals(parts[0]);
+        boolean snot = "1".equals(parts[1]);
+        boolean temperature = "1".equals(parts[2]);
+        LocalDate today = LocalDate.parse(parts[3]);
+        return new DailyRecord(kinderGardenVisit,
+                snot, temperature, today);
+    }
 }
