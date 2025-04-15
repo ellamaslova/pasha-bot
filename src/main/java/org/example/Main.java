@@ -26,13 +26,13 @@ public class Main {
 //    }
 
     private static DailyRecord readRecord(Scanner scanner) {
-        System.out.println("Паша пошел сегодня в сад?");
+        System.out.println("Паша пошел сегодня в сад? (Да / Нет, Yes / No)");
         boolean kinderGardenVisit = checkAnswer(scanner);
 
-        System.out.println("Есть ли сопли?");
+        System.out.println("Есть ли сопли? (Да / Нет, Yes / No)");
         boolean snot = checkAnswer(scanner);
 
-        System.out.println("Температура повышена?");
+        System.out.println("Температура повышена? (Да / Нет, Yes / No)");
         boolean temperature = checkAnswer(scanner);
 
         LocalDate today = LocalDate.now();
@@ -49,7 +49,7 @@ public class Main {
             System.out.println("Выбери вариант из предложенного");
             answer = scanner.nextLine();
         }
-        return (answer.equalsIgnoreCase("Да") || answer.equalsIgnoreCase("Д")
-                || answer.equalsIgnoreCase("Yes") || answer.equalsIgnoreCase("Y"));
+        return answer.equalsIgnoreCase("Да") || answer.equalsIgnoreCase("Д")
+                || answer.equalsIgnoreCase("Yes") || answer.equalsIgnoreCase("Y");
     }
 }
