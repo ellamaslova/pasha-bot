@@ -15,15 +15,15 @@ public class Main {
         var dailyRecord = readRecord(scanner);
         System.out.println(dailyRecord);
         Files.writeString(FILE_PATH, dailyRecord.toCsv() + "\n", StandardOpenOption.APPEND);
+        generateReport();
     }
 
-//    private static String generateReport() throws IOException {
-//        List<DailyRecord> records = Files.readAllLines(FILE_PATH).stream()
-//                .map(DailyRecord::fromCsv)
-//                .toList();
-//
-//
-//    }
+    private static void generateReport() throws IOException {
+        List<DailyRecord> records = Files.readAllLines(FILE_PATH).stream()
+                .map(DailyRecord::fromCsv)
+                .toList();
+        System.out.println(Statistics.createStatistics(records));
+    }
 
     private static DailyRecord readRecord(Scanner scanner) {
         System.out.println("Паша пошел сегодня в сад? (Да / Нет, Yes / No)");
