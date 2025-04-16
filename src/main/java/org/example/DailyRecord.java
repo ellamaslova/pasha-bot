@@ -10,6 +10,10 @@ public record DailyRecord(
         //Set<Mood> moods
 ) {
 
+    /**
+     * @return строка в формате csv:
+     * kinderGardenVisit;snot;temperature;today
+     */
     public String toCsv() {
         return (kinderGardenVisit ? 1 : 0) + ";" +
                 (snot ? 1 : 0) + ";" +
