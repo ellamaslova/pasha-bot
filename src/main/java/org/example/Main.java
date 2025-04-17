@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
@@ -14,6 +15,7 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         var dailyRecord = readRecord(scanner);
         System.out.println(dailyRecord);
+        assert dailyRecord != null;
         Files.writeString(FILE_PATH, dailyRecord.toCsv() + "\n", StandardOpenOption.APPEND);
         generateReport();
     }
@@ -25,19 +27,29 @@ public class Main {
         System.out.println(Statistics.createStatistics(records));
     }
 
-    private static DailyRecord readRecord(Scanner scanner) {
-        System.out.println("Паша пошел сегодня в сад? (Да / Нет, Yes / No)");
-        boolean kinderGardenVisit = checkAnswer(scanner);
+    private static DailyRecord readRecord(Scanner scanner) throws IOException {
+        LocalDate currentDay = LocalDate.now();
+        DailyRecord recordAddedToday = getRecordAddedToday(currentDay);
+        if (recordAddedToday != null) {
+            System.out.println("Запись за сегодня уже существует");
+            System.out.println(recordAddedToday);
+        }
+        else {
 
-        System.out.println("Есть ли сопли? (Да / Нет, Yes / No)");
-        boolean snot = checkAnswer(scanner);
+            System.out.println("Паша пошел сегодня в сад? (Да / Нет, Yes / No)");
+            boolean kinderGardenVisit = checkAnswer(scanner);
 
-        System.out.println("Температура повышена? (Да / Нет, Yes / No)");
-        boolean temperature = checkAnswer(scanner);
+            System.out.println("Есть ли сопли? (Да / Нет, Yes / No)");
+            boolean snot = checkAnswer(scanner);
 
-        LocalDate today = LocalDate.now();
+            System.out.println("Температура повышена? (Да / Нет, Yes / No)");
+            boolean temperature = checkAnswer(scanner);
 
-        return new DailyRecord(kinderGardenVisit, snot, temperature, today);
+            LocalDate today = LocalDate.now();
+
+            return new DailyRecord(kinderGardenVisit, snot, temperature, today);
+        }
+        return null;
     }
 
     private static boolean checkAnswer(Scanner scanner) {
@@ -51,5 +63,16 @@ public class Main {
         }
         return answer.equalsIgnoreCase("Да") || answer.equalsIgnoreCase("Д")
                 || answer.equalsIgnoreCase("Yes") || answer.equalsIgnoreCase("Y");
+    }
+
+    private static DailyRecord getRecordAddedToday(LocalDate today) throws IOException {
+        if (!Files.exists(FILE_PATH))
+            return null;
+
+        List<DailyRecord> lines = Files.readAllLines(FILE_PATH).stream()
+                .map(DailyRecord::fromCsv)
+                .toList();
+        DailyRecord lastRecord = lines.getLast();
+        return lastRecord.today().equals(today) ? lastRecord : null;
     }
 }
