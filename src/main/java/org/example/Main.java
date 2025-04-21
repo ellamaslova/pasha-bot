@@ -50,18 +50,19 @@ public class Main {
     }
 
     private static void menu() throws IOException {
-        while (true) {
-            System.out.println("=== Меню трекера здоровья ===");
-            System.out.println("1. Записать данные за день");
-            System.out.println("2. Посмотреть статистику");
-            System.out.println("3. Найти по симптому");
-            System.out.println("4. Выход");
-            System.out.print("Выберите действие (1-4): ");
+        while (true) {System.out.println("""
+        === Меню трекера здоровья ===
+        1. Записать данные за день
+        2. Посмотреть статистику
+        3. Найти по симптому
+        4. Выход
+        =============================
+        Выберите действие (1-4):""");
 
             int choice;
             Scanner scanner;
+            scanner = new Scanner(System.in);
             try {
-                scanner = new Scanner(System.in);
                 choice = Integer.parseInt(scanner.nextLine());
             } catch (NumberFormatException e) {
                 System.out.println("Ошибка: введите число от 1 до 4");

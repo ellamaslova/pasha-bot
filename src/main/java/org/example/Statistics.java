@@ -1,8 +1,16 @@
 package org.example;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDate;
 import java.util.List;
 
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter(AccessLevel.MODULE)
 public class Statistics {
     private int daysWithSnot;
     private int daysWithTemperature;
@@ -13,7 +21,6 @@ public class Statistics {
     private LocalDate lastDayWithSnot;
     private LocalDate lastDayWithTemperature;
     private LocalDate lastVisit;
-
 
     public static Statistics createStatistics(List<DailyRecord> records) {
         if (records.isEmpty()) {
