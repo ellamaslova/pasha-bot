@@ -5,17 +5,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
     private static final Path FILE_PATH = Path.of("records.csv");
 
     public static void main(String[] args) throws IOException {
-        Scanner scanner = new Scanner(System.in);
-        var dailyRecord = readRecord(scanner);
-        System.out.println(dailyRecord);
-        Files.writeString(FILE_PATH, dailyRecord.toCsv() + "\n", StandardOpenOption.APPEND);
-        generateReport();
+        menu();
     }
 
     private static void generateReport() throws IOException {
@@ -28,7 +25,6 @@ public class Main {
     private static DailyRecord readRecord(Scanner scanner) {
         System.out.println("Паша пошел сегодня в сад? (Да / Нет, Yes / No)");
         boolean kinderGardenVisit = checkAnswer(scanner);
-
         System.out.println("Есть ли сопли? (Да / Нет, Yes / No)");
         boolean snot = checkAnswer(scanner);
 
@@ -51,5 +47,49 @@ public class Main {
         }
         return answer.equalsIgnoreCase("Да") || answer.equalsIgnoreCase("Д")
                 || answer.equalsIgnoreCase("Yes") || answer.equalsIgnoreCase("Y");
+    }
+
+    private static void menu() throws IOException {
+        while (true) {
+            System.out.println("""
+                === Меню трекера здоровья ===
+                1. Записать данные за день
+                2. Посмотреть статистику
+                3. Найти по симптому
+                4. Выход
+                =============================
+                Выберите действие (1-4):""");
+
+            int choice;
+            Scanner scanner;
+            scanner = new Scanner(System.in);
+            try {
+                choice = Integer.parseInt(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("Ошибка: введите число от 1 до 4");
+                continue;
+            }
+            switch (choice) {
+                case 1:
+                    var dailyRecord = readRecord(scanner);
+                    Files.writeString(FILE_PATH, dailyRecord.toCsv() + "\n", StandardOpenOption.APPEND);
+                    break;
+                case 2:
+                    generateReport();
+                    break;
+                case 3:
+                    searchBySymptom();
+                    break;
+                case 4:
+                    System.out.println("Выход из программы...");
+                    return;
+                default:
+                    System.out.println("Ошибка: введите число от 1 до 4");
+            }
+        }
+    }
+
+    private static void searchBySymptom() {
+        // TODO...
     }
 }
