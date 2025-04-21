@@ -24,27 +24,22 @@ public class Main {
 
     private static DailyRecord readRecord(Scanner scanner) throws IOException {
         LocalDate currentDay = LocalDate.now();
-        DailyRecord recordAddedToday = getRecordAddedToday(currentDay);
+        DailyRecord recordAddedToday = getTodayRecord(currentDay);
         if (recordAddedToday != null) {
             System.out.println("Запись за сегодня уже существует");
             System.out.println(recordAddedToday);
+            return null;
         }
-        else {
+        System.out.println("Паша пошел сегодня в сад? (Да / Нет, Yes / No)");
+        boolean kinderGardenVisit = checkAnswer(scanner);
 
-            System.out.println("Паша пошел сегодня в сад? (Да / Нет, Yes / No)");
-            boolean kinderGardenVisit = checkAnswer(scanner);
+        System.out.println("Есть ли сопли? (Да / Нет, Yes / No)");
+        boolean snot = checkAnswer(scanner);
 
-            System.out.println("Есть ли сопли? (Да / Нет, Yes / No)");
-            boolean snot = checkAnswer(scanner);
+        System.out.println("Температура повышена? (Да / Нет, Yes / No)");
+        boolean temperature = checkAnswer(scanner);
 
-            System.out.println("Температура повышена? (Да / Нет, Yes / No)");
-            boolean temperature = checkAnswer(scanner);
-
-            LocalDate today = LocalDate.now();
-
-            return new DailyRecord(kinderGardenVisit, snot, temperature, today);
-        }
-        return null;
+        return new DailyRecord(kinderGardenVisit, snot, temperature, LocalDate.now());
     }
 
     private static boolean checkAnswer(Scanner scanner) {
@@ -83,7 +78,9 @@ public class Main {
             switch (choice) {
                 case 1:
                     var dailyRecord = readRecord(scanner);
-                    Files.writeString(FILE_PATH, dailyRecord.toCsv() + "\n", StandardOpenOption.APPEND);
+                    if (dailyRecord != null) {
+                        Files.writeString(FILE_PATH, dailyRecord.toCsv() + "\n", StandardOpenOption.APPEND);
+                    }
                     break;
                 case 2:
                     generateReport();
@@ -104,7 +101,7 @@ public class Main {
         // TODO...
     }
 
-    private static DailyRecord getRecordAddedToday(LocalDate today) throws IOException {
+    private static DailyRecord getTodayRecord(LocalDate today) throws IOException {
         if (!Files.exists(FILE_PATH))
             return null;
 
