@@ -50,14 +50,15 @@ public class Main {
     }
 
     private static void menu() throws IOException {
-        while (true) {System.out.println("""
-        === Меню трекера здоровья ===
-        1. Записать данные за день
-        2. Посмотреть статистику
-        3. Найти по симптому
-        4. Выход
-        =============================
-        Выберите действие (1-4):""");
+        while (true) {
+            System.out.println("""
+                === Меню трекера здоровья ===
+                1. Записать данные за день
+                2. Посмотреть статистику
+                3. Найти по симптому
+                4. Выход
+                =============================
+                Выберите действие (1-4):""");
 
             int choice;
             Scanner scanner;
@@ -70,7 +71,6 @@ public class Main {
             }
             switch (choice) {
                 case 1:
-                    readRecord(scanner);
                     var dailyRecord = readRecord(scanner);
                     Files.writeString(FILE_PATH, dailyRecord.toCsv() + "\n", StandardOpenOption.APPEND);
                     break;
@@ -84,7 +84,7 @@ public class Main {
                     System.out.println("Выход из программы...");
                     return;
                 default:
-                    System.out.println("Неверный ввод. Попробуйте снова.");
+                    System.out.println("Ошибка: введите число от 1 до 4");
             }
         }
     }
