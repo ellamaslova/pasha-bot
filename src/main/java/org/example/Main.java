@@ -12,12 +12,7 @@ public class Main {
     private static final Path FILE_PATH = Path.of("records.csv");
 
     public static void main(String[] args) throws IOException {
-        Scanner scanner = new Scanner(System.in);
-        var dailyRecord = readRecord(scanner);
-        System.out.println(dailyRecord);
-        assert dailyRecord != null;
-        Files.writeString(FILE_PATH, dailyRecord.toCsv() + "\n", StandardOpenOption.APPEND);
-        generateReport();
+        menu();
     }
 
     private static void generateReport() throws IOException {
@@ -63,6 +58,50 @@ public class Main {
         }
         return answer.equalsIgnoreCase("Да") || answer.equalsIgnoreCase("Д")
                 || answer.equalsIgnoreCase("Yes") || answer.equalsIgnoreCase("Y");
+    }
+
+    private static void menu() throws IOException {
+        while (true) {
+            System.out.println("""
+                === Меню трекера здоровья ===
+                1. Записать данные за день
+                2. Посмотреть статистику
+                3. Найти по симптому
+                4. Выход
+                =============================
+                Выберите действие (1-4):""");
+
+            int choice;
+            Scanner scanner;
+            scanner = new Scanner(System.in);
+            try {
+                choice = Integer.parseInt(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("Ошибка: введите число от 1 до 4");
+                continue;
+            }
+            switch (choice) {
+                case 1:
+                    var dailyRecord = readRecord(scanner);
+                    Files.writeString(FILE_PATH, dailyRecord.toCsv() + "\n", StandardOpenOption.APPEND);
+                    break;
+                case 2:
+                    generateReport();
+                    break;
+                case 3:
+                    searchBySymptom();
+                    break;
+                case 4:
+                    System.out.println("Выход из программы...");
+                    return;
+                default:
+                    System.out.println("Ошибка: введите число от 1 до 4");
+            }
+        }
+    }
+
+    private static void searchBySymptom() {
+        // TODO...
     }
 
     private static DailyRecord getRecordAddedToday(LocalDate today) throws IOException {
