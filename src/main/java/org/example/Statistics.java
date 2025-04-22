@@ -15,6 +15,7 @@ public class Statistics {
     private int daysWithSnot;
     private int daysWithTemperature;
     private int numberOfKinderGardenVisit;
+    private int daysNoShow;
     private float percentageOfNoShows;
     private float percentageOfTemperature;
     private float percentageOfSnot;
@@ -33,6 +34,9 @@ public class Statistics {
                 stat.numberOfKinderGardenVisit++;
                 stat.lastVisit = record.today();
             }
+            if (!record.kinderGardenVisit())
+                stat.daysNoShow++;
+
             if (record.snot()) {
                 stat.daysWithSnot++;
                 stat.lastDayWithSnot = record.today();
@@ -41,7 +45,7 @@ public class Statistics {
                 stat.daysWithTemperature++;
                 stat.lastDayWithTemperature = record.today();
             }
-            stat.percentageOfNoShows = (float) Math.round((float) stat.numberOfKinderGardenVisit / records.size() * 100 * 100) / 100;
+            stat.percentageOfNoShows = (float) Math.round((float) stat.daysNoShow / records.size() * 100 * 100) / 100;
             stat.percentageOfSnot = (float) Math.round((float) stat.daysWithSnot / records.size() * 100 * 100) / 100;
             stat.percentageOfTemperature = (float) Math.round((float) stat.daysWithTemperature / records.size() * 100 * 100) / 100;
         }
