@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -89,7 +90,62 @@ public class Main {
         }
     }
 
-    private static void searchBySymptom() {
-        // TODO...
+    private static void searchBySymptom() throws IOException {
+        List<DailyRecord> records = Files.readAllLines(FILE_PATH).stream()
+                .map(DailyRecord::fromCsv)
+                .toList();
+        int daysWithSnot = 0;
+        int daysWithTemperature = 0;
+        int daysNoShow = 0;
+        List<DailyRecord> snotRecord = new ArrayList<>();
+        List<DailyRecord> temperatureRecord = new ArrayList<>();
+        List<DailyRecord> noShowRecord = new ArrayList<>();
+        for (DailyRecord record : records) {
+            if (record.snot()) {
+                daysWithSnot++;
+                snotRecord.add(record);
+            }
+            if (record.temperature()) {
+                daysWithTemperature++;
+                temperatureRecord.add(record);
+            }
+            if (!record.kinderGardenVisit()) {
+                daysNoShow++;
+                noShowRecord.add(record);
+            }
+        }
+        while (true) {
+            System.out.printf("""
+                    1. насморк (%d записей)
+                    2. температура (%d записей)
+                    3. прогул (%d записей)
+                    4. выход
+                    %n""", daysWithSnot, daysWithTemperature, daysNoShow);
+            int choice;
+            Scanner scanner;
+            scanner = new Scanner(System.in);
+            try {
+                choice = Integer.parseInt(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("Ошибка: введите число от 1 до 4");
+                continue;
+            }
+            switch (choice) {
+                case 1:
+                    System.out.println(snotRecord);
+                break;
+            case 2:
+                System.out.println(temperatureRecord);
+                break;
+            case 3:
+                System.out.println(noShowRecord);
+                break;
+            case 4:
+                System.out.println("Выход из программы...");
+                return;
+            default:
+                System.out.println("Ошибка: введите число от 1 до 4");
+        }
+        }
     }
 }
