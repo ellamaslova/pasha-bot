@@ -16,11 +16,43 @@ public class Main {
         menu();
     }
 
-    private static void generateReport() throws IOException {
-        List<DailyRecord> records = Files.readAllLines(FILE_PATH).stream()
-                .map(DailyRecord::fromCsv)
-                .toList();
-        System.out.println(Statistics.createStatistics(records));
+    private static void menu() throws IOException {
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.println("""
+                === Меню трекера здоровья ===
+                1. Записать данные за день
+                2. Посмотреть статистику
+                3. Найти по симптому
+                4. Выход
+                =============================
+                Выберите действие (1-4):""");
+
+            int choice;
+            try {
+                choice = Integer.parseInt(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("Ошибка: введите число от 1 до 4");
+                continue;
+            }
+            switch (choice) {
+                case 1:
+                    var dailyRecord = readRecord(scanner);
+                    Files.writeString(FILE_PATH, dailyRecord.toCsv() + "\n", StandardOpenOption.APPEND);
+                    break;
+                case 2:
+                    generateReport();
+                    break;
+                case 3:
+                    searchBySymptom(scanner);
+                    break;
+                case 4:
+                    System.out.println("Выход из программы...");
+                    return;
+                default:
+                    System.out.println("Ошибка: введите число от 1 до 4");
+            }
+        }
     }
 
     private static DailyRecord readRecord(Scanner scanner) {
@@ -50,68 +82,35 @@ public class Main {
                 || answer.equalsIgnoreCase("Yes") || answer.equalsIgnoreCase("Y");
     }
 
-    private static void menu() throws IOException {
-        while (true) {
-            System.out.println("""
-                === Меню трекера здоровья ===
-                1. Записать данные за день
-                2. Посмотреть статистику
-                3. Найти по симптому
-                4. Выход
-                =============================
-                Выберите действие (1-4):""");
-
-            int choice;
-            Scanner scanner;
-            scanner = new Scanner(System.in);
-            try {
-                choice = Integer.parseInt(scanner.nextLine());
-            } catch (NumberFormatException e) {
-                System.out.println("Ошибка: введите число от 1 до 4");
-                continue;
-            }
-            switch (choice) {
-                case 1:
-                    var dailyRecord = readRecord(scanner);
-                    Files.writeString(FILE_PATH, dailyRecord.toCsv() + "\n", StandardOpenOption.APPEND);
-                    break;
-                case 2:
-                    generateReport();
-                    break;
-                case 3:
-                    searchBySymptom();
-                    break;
-                case 4:
-                    System.out.println("Выход из программы...");
-                    return;
-                default:
-                    System.out.println("Ошибка: введите число от 1 до 4");
-            }
-        }
+    private static void generateReport() throws IOException {
+        List<DailyRecord> records = Files.readAllLines(FILE_PATH).stream()
+                .map(DailyRecord::fromCsv)
+                .toList();
+        System.out.println(Statistics.createStatistics(records));
     }
 
-    private static void searchBySymptom() throws IOException {
+    private static void searchBySymptom(Scanner scanner) throws IOException {
         List<DailyRecord> records = Files.readAllLines(FILE_PATH).stream()
                 .map(DailyRecord::fromCsv)
                 .toList();
         int daysWithSnot = 0;
         int daysWithTemperature = 0;
         int daysNoShow = 0;
-        List<DailyRecord> snotRecord = new ArrayList<>();
-        List<DailyRecord> temperatureRecord = new ArrayList<>();
-        List<DailyRecord> noShowRecord = new ArrayList<>();
+        List<DailyRecord> snotRecords = new ArrayList<>();
+        List<DailyRecord> temperatureRecords = new ArrayList<>();
+        List<DailyRecord> noShowRecords = new ArrayList<>();
         for (DailyRecord record : records) {
             if (record.snot()) {
                 daysWithSnot++;
-                snotRecord.add(record);
+                snotRecords.add(record);
             }
             if (record.temperature()) {
                 daysWithTemperature++;
-                temperatureRecord.add(record);
+                temperatureRecords.add(record);
             }
             if (!record.kinderGardenVisit()) {
                 daysNoShow++;
-                noShowRecord.add(record);
+                noShowRecords.add(record);
             }
         }
         while (true) {
@@ -122,8 +121,6 @@ public class Main {
                     4. выход
                     %n""", daysWithSnot, daysWithTemperature, daysNoShow);
             int choice;
-            Scanner scanner;
-            scanner = new Scanner(System.in);
             try {
                 choice = Integer.parseInt(scanner.nextLine());
             } catch (NumberFormatException e) {
@@ -132,20 +129,20 @@ public class Main {
             }
             switch (choice) {
                 case 1:
-                    System.out.println(snotRecord);
-                break;
-            case 2:
-                System.out.println(temperatureRecord);
-                break;
-            case 3:
-                System.out.println(noShowRecord);
-                break;
-            case 4:
-                System.out.println("Выход из программы...");
-                return;
-            default:
-                System.out.println("Ошибка: введите число от 1 до 4");
-        }
+                    snotRecords.forEach(System.out::println);
+                    break;
+                case 2:
+                    temperatureRecords.forEach(System.out::println);
+                    break;
+                case 3:
+                    noShowRecords.forEach(System.out::println);
+                    break;
+                case 4:
+                    System.out.println("Выход из программы...");
+                    return;
+                default:
+                    System.out.println("Ошибка: введите число от 1 до 4");
+            }
         }
     }
 }

@@ -53,7 +53,7 @@ class StatisticsTest {
         Statistics result = Statistics.createStatistics(records);
 
         assertNotNull(result);
-        assertEquals(100.0f, result.getPercentageOfNoShows());
+        assertEquals(0.0f, result.getPercentageOfNoShows());
         assertEquals(0.0f, result.getPercentageOfSnot());
         assertEquals(0.0f, result.getPercentageOfTemperature());
     }
@@ -64,12 +64,13 @@ class StatisticsTest {
                 5,                          // daysWithSnot
                 3,                          // daysWithTemperature
                 10,                         // numberOfKinderGardenVisit
+                3,                          // daysNoShow
                 20.0f,                      // percentageOfNoShows
                 30.0f,                      // percentageOfTemperature
                 50.0f,                      // percentageOfSnot
                 LocalDate.of(2023, 12, 1),   // lastDayWithSnot
                 LocalDate.of(2023, 12, 5),   // lastDayWithTemperature
-                LocalDate.now()              // lastVisit
+                LocalDate.of(2025, 4, 20)  // lastVisit
         );
         assertEquals("""
                 === Статистический отчет ===
