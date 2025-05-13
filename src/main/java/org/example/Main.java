@@ -38,7 +38,9 @@ public class Main {
             switch (choice) {
                 case 1:
                     var dailyRecord = readRecord(scanner);
-                    Files.writeString(FILE_PATH, dailyRecord.toCsv() + "\n", StandardOpenOption.APPEND);
+                    if (dailyRecord != null) {
+                        Files.writeString(FILE_PATH, dailyRecord.toCsv() + "\n", StandardOpenOption.APPEND);
+                    }
                     break;
                 case 2:
                     generateReport();
@@ -55,18 +57,24 @@ public class Main {
         }
     }
 
-    private static DailyRecord readRecord(Scanner scanner) {
+    private static DailyRecord readRecord(Scanner scanner) throws IOException {
+        LocalDate currentDay = LocalDate.now();
+        DailyRecord recordAddedToday = getTodayRecord(currentDay);
+        if (recordAddedToday != null) {
+            System.out.println("Запись за сегодня уже существует");
+            System.out.println(recordAddedToday);
+            return null;
+        }
         System.out.println("Паша пошел сегодня в сад? (Да / Нет, Yes / No)");
         boolean kinderGardenVisit = checkAnswer(scanner);
+
         System.out.println("Есть ли сопли? (Да / Нет, Yes / No)");
         boolean snot = checkAnswer(scanner);
 
         System.out.println("Температура повышена? (Да / Нет, Yes / No)");
         boolean temperature = checkAnswer(scanner);
 
-        LocalDate today = LocalDate.now();
-
-        return new DailyRecord(kinderGardenVisit, snot, temperature, today);
+        return new DailyRecord(kinderGardenVisit, snot, temperature, LocalDate.now());
     }
 
     private static boolean checkAnswer(Scanner scanner) {
@@ -144,5 +152,16 @@ public class Main {
                     System.out.println("Ошибка: введите число от 1 до 4");
             }
         }
+    }
+
+    private static DailyRecord getTodayRecord(LocalDate today) throws IOException {
+        if (!Files.exists(FILE_PATH))
+            return null;
+
+        List<DailyRecord> lines = Files.readAllLines(FILE_PATH).stream()
+                .map(DailyRecord::fromCsv)
+                .toList();
+        DailyRecord lastRecord = lines.getLast();
+        return lastRecord.today().equals(today) ? lastRecord : null;
     }
 }
