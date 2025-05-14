@@ -1,5 +1,8 @@
 package org.example;
 
+import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,9 +13,23 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Main {
+    // TODO: от этого надо отказаться
     private static final Path FILE_PATH = Path.of("records.csv");
 
     public static void main(String[] args) throws IOException {
+        // читаем конфигурацию
+        Config config = Config.readConfig("config.properties");
+
+        // подключаемся к бд
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName(config.getDbDriver());
+        dataSource.setUrl(config.getDbJdbcUrl());
+        dataSource.setUsername(config.getDbUser());
+        dataSource.setPassword(config.getDbPassword());
+        JdbcClient jdbcClient = JdbcClient.create(dataSource);
+
+        RecordsDAO recordsDAO = new RecordsDAO(jdbcClient);  // TODO: надо бы это задействовать вместо файла
+
         menu();
     }
 
