@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -15,11 +16,45 @@ public class Main {
         menu();
     }
 
-    private static void generateReport() throws IOException {
-        List<DailyRecord> records = Files.readAllLines(FILE_PATH).stream()
-                .map(DailyRecord::fromCsv)
-                .toList();
-        System.out.println(Statistics.createStatistics(records));
+    private static void menu() throws IOException {
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.println("""
+                === Меню трекера здоровья ===
+                1. Записать данные за день
+                2. Посмотреть статистику
+                3. Найти по симптому
+                4. Выход
+                =============================
+                Выберите действие (1-4):""");
+
+            int choice;
+            try {
+                choice = Integer.parseInt(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("Ошибка: введите число от 1 до 4");
+                continue;
+            }
+            switch (choice) {
+                case 1:
+                    var dailyRecord = readRecord(scanner);
+                    if (dailyRecord != null) {
+                        Files.writeString(FILE_PATH, dailyRecord.toCsv() + "\n", StandardOpenOption.APPEND);
+                    }
+                    break;
+                case 2:
+                    generateReport();
+                    break;
+                case 3:
+                    searchBySymptom(scanner);
+                    break;
+                case 4:
+                    System.out.println("Выход из программы...");
+                    return;
+                default:
+                    System.out.println("Ошибка: введите число от 1 до 4");
+            }
+        }
     }
 
     private static DailyRecord readRecord(Scanner scanner) throws IOException {
@@ -55,20 +90,45 @@ public class Main {
                 || answer.equalsIgnoreCase("Yes") || answer.equalsIgnoreCase("Y");
     }
 
-    private static void menu() throws IOException {
-        while (true) {
-            System.out.println("""
-                === Меню трекера здоровья ===
-                1. Записать данные за день
-                2. Посмотреть статистику
-                3. Найти по симптому
-                4. Выход
-                =============================
-                Выберите действие (1-4):""");
+    private static void generateReport() throws IOException {
+        List<DailyRecord> records = Files.readAllLines(FILE_PATH).stream()
+                .map(DailyRecord::fromCsv)
+                .toList();
+        System.out.println(Statistics.createStatistics(records));
+    }
 
+    private static void searchBySymptom(Scanner scanner) throws IOException {
+        List<DailyRecord> records = Files.readAllLines(FILE_PATH).stream()
+                .map(DailyRecord::fromCsv)
+                .toList();
+        int daysWithSnot = 0;
+        int daysWithTemperature = 0;
+        int daysNoShow = 0;
+        List<DailyRecord> snotRecords = new ArrayList<>();
+        List<DailyRecord> temperatureRecords = new ArrayList<>();
+        List<DailyRecord> noShowRecords = new ArrayList<>();
+        for (DailyRecord record : records) {
+            if (record.snot()) {
+                daysWithSnot++;
+                snotRecords.add(record);
+            }
+            if (record.temperature()) {
+                daysWithTemperature++;
+                temperatureRecords.add(record);
+            }
+            if (!record.kinderGardenVisit()) {
+                daysNoShow++;
+                noShowRecords.add(record);
+            }
+        }
+        while (true) {
+            System.out.printf("""
+                    1. насморк (%d записей)
+                    2. температура (%d записей)
+                    3. прогул (%d записей)
+                    4. выход
+                    %n""", daysWithSnot, daysWithTemperature, daysNoShow);
             int choice;
-            Scanner scanner;
-            scanner = new Scanner(System.in);
             try {
                 choice = Integer.parseInt(scanner.nextLine());
             } catch (NumberFormatException e) {
@@ -77,16 +137,13 @@ public class Main {
             }
             switch (choice) {
                 case 1:
-                    var dailyRecord = readRecord(scanner);
-                    if (dailyRecord != null) {
-                        Files.writeString(FILE_PATH, dailyRecord.toCsv() + "\n", StandardOpenOption.APPEND);
-                    }
+                    snotRecords.forEach(System.out::println);
                     break;
                 case 2:
-                    generateReport();
+                    temperatureRecords.forEach(System.out::println);
                     break;
                 case 3:
-                    searchBySymptom();
+                    noShowRecords.forEach(System.out::println);
                     break;
                 case 4:
                     System.out.println("Выход из программы...");
@@ -95,10 +152,6 @@ public class Main {
                     System.out.println("Ошибка: введите число от 1 до 4");
             }
         }
-    }
-
-    private static void searchBySymptom() {
-        // TODO...
     }
 
     private static DailyRecord getTodayRecord(LocalDate today) throws IOException {
