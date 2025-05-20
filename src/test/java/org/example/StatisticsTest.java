@@ -3,60 +3,10 @@ package org.example;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class StatisticsTest {
-
-    @Test
-    void createStatistics_withEmptyList_returnsNull() {
-        List<DailyRecord> records = List.of();
-        Statistics result = Statistics.createStatistics(records);
-        assertNull(result);
-    }
-
-    @Test
-    void createStatistics_withMixedRecords_calculatesCorrectly() {
-        // Подготовка тестовых данных
-        List<DailyRecord> records = List.of(
-                new DailyRecord(true, false, false, LocalDate.of(2023, 12, 1)), // посещение
-                new DailyRecord(false, true, false, LocalDate.of(2023, 12, 2)), // насморк
-                new DailyRecord(false, false, true, LocalDate.of(2023, 12, 3)), // температура
-                new DailyRecord(true, true, false, LocalDate.of(2023, 12, 4))  // посещение + насморк
-        );
-
-        Statistics result = Statistics.createStatistics(records);
-
-        // Проверки
-        assertNotNull(result);
-        assertEquals(2, result.getNumberOfKinderGardenVisit());
-        assertEquals(2, result.getDaysWithSnot());
-        assertEquals(1, result.getDaysWithTemperature());
-
-        assertEquals(LocalDate.of(2023, 12, 4), result.getLastVisit());
-        assertEquals(LocalDate.of(2023, 12, 4), result.getLastDayWithSnot());
-        assertEquals(LocalDate.of(2023, 12, 3), result.getLastDayWithTemperature());
-
-        assertEquals(50.0f, result.getPercentageOfNoShows());  // 2/4 = 50%
-        assertEquals(50.0f, result.getPercentageOfSnot());     // 2/4 = 50%
-        assertEquals(25.0f, result.getPercentageOfTemperature()); // 1/4 = 25%
-    }
-
-    @Test
-    void createStatistics_withAllVisits_calculates100Percent() {
-        List<DailyRecord> records = List.of(
-                new DailyRecord(true, false, false, LocalDate.now()),
-                new DailyRecord(true, false, false, LocalDate.now().minusDays(1))
-        );
-
-        Statistics result = Statistics.createStatistics(records);
-
-        assertNotNull(result);
-        assertEquals(0.0f, result.getPercentageOfNoShows());
-        assertEquals(0.0f, result.getPercentageOfSnot());
-        assertEquals(0.0f, result.getPercentageOfTemperature());
-    }
 
     @Test
     void testToString() {

@@ -1,16 +1,16 @@
 package org.example;
 
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter(AccessLevel.MODULE)
+@Getter
+@Setter
 public class Statistics {
     private int daysWithSnot;
     private int daysWithTemperature;
@@ -22,36 +22,6 @@ public class Statistics {
     private LocalDate lastDayWithSnot;
     private LocalDate lastDayWithTemperature;
     private LocalDate lastVisit;
-
-    public static Statistics createStatistics(List<DailyRecord> records) {
-        if (records.isEmpty()) {
-            System.out.println("Нет данных для отчета");
-            return null;
-        }
-        Statistics stat = new Statistics();
-        for (DailyRecord record : records) {
-            if (record.kinderGardenVisit()) {
-                stat.numberOfKinderGardenVisit++;
-                stat.lastVisit = record.today();
-            }
-            if (!record.kinderGardenVisit())
-                stat.daysNoShow++;
-
-            if (record.snot()) {
-                stat.daysWithSnot++;
-                stat.lastDayWithSnot = record.today();
-            }
-            if (record.temperature()) {
-                stat.daysWithTemperature++;
-                stat.lastDayWithTemperature = record.today();
-            }
-            stat.percentageOfNoShows = (float) Math.round((float) stat.daysNoShow / records.size() * 100 * 100) / 100;
-            stat.percentageOfSnot = (float) Math.round((float) stat.daysWithSnot / records.size() * 100 * 100) / 100;
-            stat.percentageOfTemperature = (float) Math.round((float) stat.daysWithTemperature / records.size() * 100 * 100) / 100;
-        }
-
-        return stat;
-    }
 
     @Override
     public String toString() {

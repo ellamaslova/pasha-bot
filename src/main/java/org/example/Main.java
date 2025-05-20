@@ -4,17 +4,12 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 public class Main {
-    // TODO: от этого надо отказаться
-    private static final Path FILE_PATH = Path.of("records.csv");
+
+    static RecordsDAO recordsDAO;
 
     public static void main(String[] args) throws IOException {
         // читаем конфигурацию
@@ -28,12 +23,12 @@ public class Main {
         dataSource.setPassword(config.getDbPassword());
         JdbcClient jdbcClient = JdbcClient.create(dataSource);
 
-        RecordsDAO recordsDAO = new RecordsDAO(jdbcClient);  // TODO: надо бы это задействовать вместо файла
+        recordsDAO = new RecordsDAO(jdbcClient);
 
         menu();
     }
 
-    private static void menu() throws IOException {
+    private static void menu() {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             System.out.println("""
@@ -56,7 +51,7 @@ public class Main {
                 case 1:
                     var dailyRecord = readRecord(scanner);
                     if (dailyRecord != null) {
-                        Files.writeString(FILE_PATH, dailyRecord.toCsv() + "\n", StandardOpenOption.APPEND);
+                        recordsDAO.insert(dailyRecord);
                     }
                     break;
                 case 2:
@@ -74,9 +69,9 @@ public class Main {
         }
     }
 
-    private static DailyRecord readRecord(Scanner scanner) throws IOException {
+    private static DailyRecord readRecord(Scanner scanner)  {
         LocalDate currentDay = LocalDate.now();
-        DailyRecord recordAddedToday = getTodayRecord(currentDay);
+        DailyRecord recordAddedToday = recordsDAO.getRecordByDate(currentDay);
         if (recordAddedToday != null) {
             System.out.println("Запись за сегодня уже существует");
             System.out.println(recordAddedToday);
@@ -107,44 +102,19 @@ public class Main {
                 || answer.equalsIgnoreCase("Yes") || answer.equalsIgnoreCase("Y");
     }
 
-    private static void generateReport() throws IOException {
-        List<DailyRecord> records = Files.readAllLines(FILE_PATH).stream()
-                .map(DailyRecord::fromCsv)
-                .toList();
-        System.out.println(Statistics.createStatistics(records));
+    private static void generateReport() {
+        System.out.println(recordsDAO.getStatistics());
     }
 
-    private static void searchBySymptom(Scanner scanner) throws IOException {
-        List<DailyRecord> records = Files.readAllLines(FILE_PATH).stream()
-                .map(DailyRecord::fromCsv)
-                .toList();
-        int daysWithSnot = 0;
-        int daysWithTemperature = 0;
-        int daysNoShow = 0;
-        List<DailyRecord> snotRecords = new ArrayList<>();
-        List<DailyRecord> temperatureRecords = new ArrayList<>();
-        List<DailyRecord> noShowRecords = new ArrayList<>();
-        for (DailyRecord record : records) {
-            if (record.snot()) {
-                daysWithSnot++;
-                snotRecords.add(record);
-            }
-            if (record.temperature()) {
-                daysWithTemperature++;
-                temperatureRecords.add(record);
-            }
-            if (!record.kinderGardenVisit()) {
-                daysNoShow++;
-                noShowRecords.add(record);
-            }
-        }
+    private static void searchBySymptom(Scanner scanner) {
+        Statistics statistics = recordsDAO.getStatistics();
         while (true) {
             System.out.printf("""
                     1. насморк (%d записей)
                     2. температура (%d записей)
                     3. прогул (%d записей)
                     4. выход
-                    %n""", daysWithSnot, daysWithTemperature, daysNoShow);
+                    %n""", statistics.getDaysWithSnot(), statistics.getDaysWithTemperature(), statistics.getDaysNoShow());
             int choice;
             try {
                 choice = Integer.parseInt(scanner.nextLine());
@@ -154,13 +124,13 @@ public class Main {
             }
             switch (choice) {
                 case 1:
-                    snotRecords.forEach(System.out::println);
+                    recordsDAO.getSnotRecords().forEach(System.out::println);
                     break;
                 case 2:
-                    temperatureRecords.forEach(System.out::println);
+                    recordsDAO.getTemperatureRecords().forEach(System.out::println);
                     break;
                 case 3:
-                    noShowRecords.forEach(System.out::println);
+                    recordsDAO.getNoShowRecords().forEach(System.out::println);
                     break;
                 case 4:
                     System.out.println("Выход из программы...");
@@ -169,16 +139,5 @@ public class Main {
                     System.out.println("Ошибка: введите число от 1 до 4");
             }
         }
-    }
-
-    private static DailyRecord getTodayRecord(LocalDate today) throws IOException {
-        if (!Files.exists(FILE_PATH))
-            return null;
-
-        List<DailyRecord> lines = Files.readAllLines(FILE_PATH).stream()
-                .map(DailyRecord::fromCsv)
-                .toList();
-        DailyRecord lastRecord = lines.getLast();
-        return lastRecord.today().equals(today) ? lastRecord : null;
     }
 }
